@@ -22,10 +22,10 @@ app.get("/", (req, res) => {
 
 app.get("/users", async (req, res) => {
 
-  const users = await User.find({}) 
+  const users = await User.find({})
 
-  if(!users || users.length == 0){
-    res.status(404).json({ msg: 'Algo deu errado'})
+  if (!users || users.length == 0) {
+    res.status(404).json({ msg: 'Algo deu errado' })
   }
 
   res.status(200).json(users)
@@ -63,6 +63,29 @@ app.put('/user/:id/updatePoint', checkToken, async (req, res) => {
     res.status(404).json({ msg: 'Ponto não cadastrado' })
   }
 })
+
+//update saida
+app.put('/user/:id/updateLastPoint', checkToken, async (req, res) => {
+  const id = req.params.id;
+  const { saida } = req.body;
+
+  try {
+    const updateUser = await User.findById(id);
+    if (!updateUser) {
+      return res.status(404).json({ msg: 'Usuario não encontrado' });
+    }
+
+    const lastPointIndex = updateUser.ponto.length - 1;
+    updateUser.ponto[lastPointIndex].saida = saida;
+
+    await updateUser.save();
+
+    res.status(200).json({ msg: 'Campo "saida" atualizado' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: 'Erro ao atualizar o campo "saida"' });
+  }
+});
 
 //middleware token
 function checkToken(req, res, next) {
