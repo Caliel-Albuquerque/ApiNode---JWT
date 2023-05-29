@@ -4,17 +4,17 @@ const User = mongoose.model('User', {
   name: String,
   email: String,
   password: String,
-  ponto: {
+  ponto: [{
     data: String,
     entrada: String,
     saida: String
-  },
-  ferias:{
+  }],
+  ferias:[{
     inicio: String,
     fim: String,
     status: Boolean,
     dias: Number,
-  }
+  }]
 
 })
 
