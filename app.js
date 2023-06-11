@@ -49,13 +49,18 @@ app.get('/user/:id', checkToken, async (req, res) => {
 //update entrada
 app.put('/user/:id/updatePoint', checkToken, async (req, res) => {
   const id = req.params.id
-  const { ponto: { data, entrada, saida } } = req.body
+  const { ponto: { data, entrada, intervalo, volta, saida } } = req.body
 
   const updateUser = await User.findOneAndUpdate(
     { _id: new ObjectId(id) },
-    { $push: { ponto: { data, entrada, saida } } },
+    { $push: { ponto: { data, entrada, intervalo, volta, saida } } },
     { new: true }
   );
+
+  if (!data || !entrada || !intervalo || !volta || !saida) {
+    return res.status(404).json({ msg: 'Erro ao cadastrar ponto' })
+  }
+
 
   if (updateUser) {
     res.status(200).json({ msg: 'Ponto cadastrado' })
@@ -87,6 +92,88 @@ app.put('/user/:id/updateLastPoint', checkToken, async (req, res) => {
   }
 });
 
+//update intervalo
+app.put('/user/:id/updateBreak', checkToken, async (req, res) => {
+  const id = req.params.id;
+  const { intervalo } = req.body;
+
+  try {
+    const updateUser = await User.findById(id);
+    if (!updateUser) {
+      return res.status(404).json({ msg: 'Usuario não encontrado' });
+    }
+
+    const lastPointIndex = updateUser.ponto.length - 1;
+    updateUser.ponto[lastPointIndex].intervalo = intervalo;
+
+    await updateUser.save();
+
+    res.status(200).json({ msg: 'Campo "intervalo" atualizado' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: 'Erro ao atualizar o campo "intervalo"' });
+  }
+});
+
+//update volta do intervalo
+app.put('/user/:id/updateBreakLast', checkToken, async (req, res) => {
+  const id = req.params.id;
+  const { volta } = req.body;
+
+  try {
+    const updateUser = await User.findById(id);
+    if (!updateUser) {
+      return res.status(404).json({ msg: 'Usuario não encontrado' });
+    }
+
+    const lastPointIndex = updateUser.ponto.length - 1;
+    updateUser.ponto[lastPointIndex].volta = volta;
+
+    await updateUser.save();
+
+    res.status(200).json({ msg: 'Campo "intervalo" atualizado' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: 'Erro ao atualizar o campo "intervalo"' });
+  }
+});
+
+//Adicionar ausencia
+app.post('/user/:id/ausencia', checkToken, async (req, res) => {
+  const id = req.params.id;
+  const { ausencia: { dia, motivo, explicacao, arquivo } } = req.body;
+
+  const updateAusencia = await User.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    { $push: { ausencia: { dia, motivo, explicacao, arquivo } } },
+    { new: true }
+  );
+
+  if(!dia){
+    return res.status(404).json({ msg: 'O dia não foi imformado'})
+  }
+  if(!motivo){
+    return res.status(404).json({ msg: 'O motivo não foi imformado'})
+  }
+  if(!explicacao){
+    return res.status(404).json({ msg: 'a EXPLICAÇÃO não foi imformado'})
+  }
+  if(!dia){
+    return res.status(404).json({ msg: 'O dia não foi imformado'})
+  }
+  if(!arquivo){
+    return res.status(404).json({ msg: 'O arquivo não foi imformado'})
+  }
+
+
+  if (updateAusencia) {
+    res.status(200).json({ msg: 'Ausência cadastrado' })
+  } else {
+    res.status(404).json({ msg: 'Ausência não cadastrado' })
+  }
+})
+
+
 //middleware token
 function checkToken(req, res, next) {
   const authHeader = req.headers["authorization"]
@@ -112,8 +199,8 @@ function checkToken(req, res, next) {
 //Register User 
 app.post("/auth/register", async (req, res) => {
 
-  const { name, email, password, confirmpassword, ponto: [{ data, entrada, saida }],
-    ferias: [{ inicio, fim, status, dias }] } = req.body
+  const { name, email, password, confirmpassword, ponto: [{ data, entrada, intervalo, volta, saida }],
+    ferias: [{ inicio, fim, status, dias }], ausencia: [{ dia, motivo, explicacao, arquivo }] } = req.body
 
   //validate
 
@@ -152,7 +239,8 @@ app.post("/auth/register", async (req, res) => {
     password: passwordHash,
     email,
     ferias: [{ inicio, fim, status, dias }],
-    ponto: [{ data, entrada, saida }]
+    ponto: [{ data, entrada, intervalo, volta, saida }],
+    ausencia: [{ dia, motivo, explicacao, arquivo }]
   })
 
   try {

@@ -7,6 +7,8 @@ const User = mongoose.model('User', {
   ponto: [{
     data: String,
     entrada: String,
+    intervalo: String,
+    volta: String,
     saida: String
   }],
   ferias:[{
@@ -14,7 +16,15 @@ const User = mongoose.model('User', {
     fim: String,
     status: Boolean,
     dias: Number,
-  }]
+  }],
+  ausencia:[
+    {
+      dia: String,
+      motivo: String,
+      explicacao: String,
+      arquivo: String,
+    }
+  ]
 
 })
 
