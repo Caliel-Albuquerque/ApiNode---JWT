@@ -131,10 +131,10 @@ app.put('/user/:id/updateBreakLast', checkToken, async (req, res) => {
 
     await updateUser.save();
 
-    res.status(200).json({ msg: 'Campo "intervalo" atualizado' });
+    res.status(200).json({ msg: 'Campo "volta" atualizado' });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: 'Erro ao atualizar o campo "intervalo"' });
+    res.status(500).json({ msg: 'Erro ao atualizar o campo "volta"' });
   }
 });
 
@@ -149,20 +149,20 @@ app.post('/user/:id/ausencia', checkToken, async (req, res) => {
     { new: true }
   );
 
-  if(!dia){
-    return res.status(404).json({ msg: 'O dia não foi imformado'})
+  if (!dia) {
+    return res.status(404).json({ msg: 'O dia não foi imformado' })
   }
-  if(!motivo){
-    return res.status(404).json({ msg: 'O motivo não foi imformado'})
+  if (!motivo) {
+    return res.status(404).json({ msg: 'O motivo não foi imformado' })
   }
-  if(!explicacao){
-    return res.status(404).json({ msg: 'a EXPLICAÇÃO não foi imformado'})
+  if (!explicacao) {
+    return res.status(404).json({ msg: 'a EXPLICAÇÃO não foi imformado' })
   }
-  if(!dia){
-    return res.status(404).json({ msg: 'O dia não foi imformado'})
+  if (!dia) {
+    return res.status(404).json({ msg: 'O dia não foi imformado' })
   }
-  if(!arquivo){
-    return res.status(404).json({ msg: 'O arquivo não foi imformado'})
+  if (!arquivo) {
+    return res.status(404).json({ msg: 'O arquivo não foi imformado' })
   }
 
 
@@ -195,6 +195,31 @@ function checkToken(req, res, next) {
     res.status(500).json({ msg: 'Token invalido' })
   }
 }
+
+//Create Ferias
+app.put('/user/:id/updateFerias', async (req, res) => {
+  const id = req.params.id
+  const { ferias: { inicio, fim, status, dias } } = req.body
+
+  const updateUser = await User.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    { $push: { ferias: { inicio, fim, status, dias } } },
+    { new: true }
+  );
+
+  if (!data || !entrada || !intervalo || !volta || !saida) {
+    return res.status(404).json({ msg: 'Erro ao cadastrar ferias' })
+  }
+
+
+  if (updateUser) {
+    res.status(200).json({ msg: 'Ferias cadastrada' })
+  } else {
+    res.status(404).json({ msg: 'Ferias não cadastrada' })
+  }
+})
+
+
 
 //Register User 
 app.post("/auth/register", async (req, res) => {
@@ -257,6 +282,14 @@ app.post("/auth/register", async (req, res) => {
 
 })
 
+//upate user
+app.put('/user/update/:id', async (req, res) => {
+  User.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    .then(usuarioAtualizado => res.json(usuarioAtualizado))
+    .catch(err => res.status(500).json({ error: err.message }))
+})
+
+
 //Login user 
 
 app.post('/auth/user', async (req, res) => {
@@ -292,13 +325,13 @@ app.post('/auth/user', async (req, res) => {
   try {
 
     const secret = process.env.SECRET
-
+    const idUser = user.id
     const token = jwt.sign({
       id: user.id,
 
     }, secret)
 
-    res.status(200).json({ msg: 'Autenticação com sucesso', token })
+    res.status(200).json({ msg: 'Autenticação com sucesso', token, idUser })
 
   } catch (err) {
     console.error(err)
