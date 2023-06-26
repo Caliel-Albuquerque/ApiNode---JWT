@@ -24,6 +24,12 @@ const User = mongoose.model('User', {
       explicacao: String,
       arquivo: String,
     }
+  ],
+  contracheque:[
+    {
+      diaArquivo: String,
+      arquivoContracheque: String,
+    }
   ]
 
 })

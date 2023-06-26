@@ -207,7 +207,7 @@ app.put('/user/:id/updateFerias', async (req, res) => {
     { new: true }
   );
 
-  if (!data || !entrada || !intervalo || !volta || !saida) {
+  if (!inicio || !fim || !status || !dias) {
     return res.status(404).json({ msg: 'Erro ao cadastrar ferias' })
   }
 
@@ -220,12 +220,36 @@ app.put('/user/:id/updateFerias', async (req, res) => {
 })
 
 
+//update ContraCheque 
+app.put('/user/:id/updateFinanceiro', async (req, res) => {
+  const id = req.params.id
+  const { contracheque: { diaArquivo, arquivoContracheque } } = req.body
+
+  const updateUser = await User.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    { $push: { contracheque: { diaArquivo, arquivoContracheque } } },
+    { new: true }
+  );
+
+  if (!diaArquivo || !arquivoContracheque) {
+    return res.status(404).json({ msg: 'Erro ao cadastrar contracheque' })
+  }
+
+
+  if (updateUser) {
+    res.status(200).json({ msg: 'contracheque cadastrado' })
+  } else {
+    res.status(404).json({ msg: 'contracheque não cadastrado' })
+  }
+})
+
+
 
 //Register User 
 app.post("/auth/register", async (req, res) => {
 
   const { name, email, password, confirmpassword, ponto: [{ data, entrada, intervalo, volta, saida }],
-    ferias: [{ inicio, fim, status, dias }], ausencia: [{ dia, motivo, explicacao, arquivo }] } = req.body
+    ferias: [{ inicio, fim, status, dias }], ausencia: [{ dia, motivo, explicacao, arquivo }], contracheque: [{ diaAquivo, arquivoContracheque }] } = req.body
 
   //validate
 
@@ -265,7 +289,8 @@ app.post("/auth/register", async (req, res) => {
     email,
     ferias: [{ inicio, fim, status, dias }],
     ponto: [{ data, entrada, intervalo, volta, saida }],
-    ausencia: [{ dia, motivo, explicacao, arquivo }]
+    ausencia: [{ dia, motivo, explicacao, arquivo }],
+    contracheque: [{ diaAquivo, arquivoContracheque }]
   })
 
   try {
