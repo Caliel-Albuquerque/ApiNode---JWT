@@ -173,6 +173,7 @@ app.post('/user/:id/ausencia', checkToken, async (req, res) => {
   }
 })
 
+//Mudar status Ausencia
 app.put('/user/:id/updateStatusAusencia', async (req, res) => {
   const id = req.params.id;
   const { statusAusencia } = req.body;
