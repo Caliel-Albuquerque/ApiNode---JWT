@@ -23,6 +23,7 @@ const User = mongoose.model('User', {
       motivo: String,
       explicacao: String,
       arquivo: String,
+      statusAusencia: Boolean
     }
   ],
   contracheque:[

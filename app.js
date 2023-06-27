@@ -141,11 +141,11 @@ app.put('/user/:id/updateBreakLast', checkToken, async (req, res) => {
 //Adicionar ausencia
 app.post('/user/:id/ausencia', checkToken, async (req, res) => {
   const id = req.params.id;
-  const { ausencia: { dia, motivo, explicacao, arquivo } } = req.body;
+  const { ausencia: { dia, motivo, explicacao, arquivo, statusAusencia } } = req.body;
 
   const updateAusencia = await User.findOneAndUpdate(
     { _id: new ObjectId(id) },
-    { $push: { ausencia: { dia, motivo, explicacao, arquivo } } },
+    { $push: { ausencia: { dia, motivo, explicacao, arquivo, statusAusencia } } },
     { new: true }
   );
 
@@ -173,6 +173,27 @@ app.post('/user/:id/ausencia', checkToken, async (req, res) => {
   }
 })
 
+app.put('/user/:id/updateStatusAusencia', async (req, res) => {
+  const id = req.params.id;
+  const { statusAusencia } = req.body;
+
+  try {
+    const updateUser = await User.findById(id);
+    if (!updateUser) {
+      return res.status(404).json({ msg: 'Usuario não encontrado' });
+    }
+
+    const lastAusenciaIndex = updateUser.ausencia.length - 1;
+    updateUser.ausencia[lastAusenciaIndex].statusAusencia = statusAusencia;
+
+    await updateUser.save();
+
+    res.status(200).json({ msg: 'Campo "status" atualizado' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: 'Erro ao atualizar o campo "status"' });
+  }
+})
 
 //middleware token
 function checkToken(req, res, next) {
@@ -249,7 +270,7 @@ app.put('/user/:id/updateFinanceiro', async (req, res) => {
 app.post("/auth/register", async (req, res) => {
 
   const { name, email, password, confirmpassword, ponto: [{ data, entrada, intervalo, volta, saida }],
-    ferias: [{ inicio, fim, status, dias }], ausencia: [{ dia, motivo, explicacao, arquivo }], contracheque: [{ diaAquivo, arquivoContracheque }] } = req.body
+    ferias: [{ inicio, fim, status, dias }], ausencia: [{ dia, motivo, explicacao, arquivo, statusAusencia }], contracheque: [{ diaAquivo, arquivoContracheque }] } = req.body
 
   //validate
 
@@ -289,7 +310,7 @@ app.post("/auth/register", async (req, res) => {
     email,
     ferias: [{ inicio, fim, status, dias }],
     ponto: [{ data, entrada, intervalo, volta, saida }],
-    ausencia: [{ dia, motivo, explicacao, arquivo }],
+    ausencia: [{ dia, motivo, explicacao, arquivo, statusAusencia }],
     contracheque: [{ diaAquivo, arquivoContracheque }]
   })
 
