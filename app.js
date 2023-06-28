@@ -247,22 +247,25 @@ app.put('/user/:id/updateFinanceiro', async (req, res) => {
   const id = req.params.id
   const { contracheque: { diaArquivo, arquivoContracheque } } = req.body
 
-  const updateUser = await User.findOneAndUpdate(
-    { _id: new ObjectId(id) },
-    { $push: { contracheque: { diaArquivo, arquivoContracheque } } },
-    { new: true }
-  );
+  try {
+    const updateUser = await User.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $push: { contracheque: { diaArquivo, arquivoContracheque } } },
+      { new: true }
+    );
 
-  if (!diaArquivo || !arquivoContracheque) {
-    return res.status(404).json({ msg: 'Erro ao cadastrar contracheque' })
+    if (!diaArquivo || !arquivoContracheque) {
+      return res.status(404).json({ msg: 'Erro ao cadastrar contracheque' })
+    }
+
+    await updateUser.save();
+
+    res.status(200).json({ msg: 'Campo contraCheque cadastrado' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: 'Erro ao atualizar o campo "status"' });
   }
 
-
-  if (updateUser) {
-    res.status(200).json({ msg: 'contracheque cadastrado' })
-  } else {
-    res.status(404).json({ msg: 'contracheque não cadastrado' })
-  }
 })
 
 
