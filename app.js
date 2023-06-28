@@ -243,7 +243,7 @@ app.put('/user/:id/updateFerias', async (req, res) => {
 
 
 //update ContraCheque 
-app.put('/user/:id/updateFinanceiro', async (req, res) => {
+app.post('/user/:id/updateFinanceiro', async (req, res) => {
   const id = req.params.id
   const { contracheque: { diaArquivo, arquivoContracheque } } = req.body
 
