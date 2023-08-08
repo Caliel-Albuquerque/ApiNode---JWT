@@ -173,6 +173,19 @@ app.post('/user/:id/ausencia', checkToken, async (req, res) => {
   }
 })
 
+app.get('/user/:id/listAusencia', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const userSelect = await User.findById(id)
+    return res.status(200).json({msg: userSelect.ausencia})
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ msg: 'Erro ao atualizar ao buscar o campo ausência' });
+  }
+
+})
+
 //Mudar status Ausencia
 app.put('/user/:id/updateStatusAusencia', async (req, res) => {
   const id = req.params.id;
@@ -217,6 +230,7 @@ function checkToken(req, res, next) {
     res.status(500).json({ msg: 'Token invalido' })
   }
 }
+
 
 //Create Ferias
 app.put('/user/:id/updateFerias', async (req, res) => {
