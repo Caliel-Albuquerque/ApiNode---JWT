@@ -173,6 +173,8 @@ app.post('/user/:id/ausencia', checkToken, async (req, res) => {
   }
 })
 
+
+//List Ausencias
 app.get('/user/:id/listAusencia', async (req, res) => {
   const id = req.params.id;
 
@@ -182,6 +184,20 @@ app.get('/user/:id/listAusencia', async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({ msg: 'Erro ao atualizar ao buscar o campo ausência' });
+  }
+
+})
+
+//List Ferias
+app.get('/user/:id/listFerias', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const userSelect = await User.findById(id)
+    return res.status(200).json({msg: userSelect.ferias})
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ msg: 'Erro ao atualizar ao buscar o campo férias' });
   }
 
 })
