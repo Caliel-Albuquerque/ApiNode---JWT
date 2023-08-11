@@ -216,6 +216,20 @@ app.get('/user/:id/listContraCheque', async (req, res) => {
 
 })
 
+//List Pontos
+app.get('/user/:id/listPontos', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const userSelect = await User.findById(id)
+    return res.status(200).json({msg: userSelect.ponto})
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ msg: 'Erro ao atualizar ao buscar o campo contracheque' });
+  }
+
+})
+
 //Mudar status Ausencia
 app.put('/user/:id/updateStatusAusencia', async (req, res) => {
   const id = req.params.id;
